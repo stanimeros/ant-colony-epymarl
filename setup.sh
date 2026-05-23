@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Server-friendly bootstrap: sync git, clone EPyMARL + patches, venv, deps, wandb check.
+# Server-friendly bootstrap: sync git, clone EPyMARL + patches, venv, deps.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -15,8 +15,15 @@ GIT_BRANCH="${GIT_BRANCH:-main}"
 GIT_REMOTE="${GIT_REMOTE:-origin}"
 PYTHON="${PYTHON:-python3}"
 SKIP_GIT_SYNC="${SKIP_GIT_SYNC:-0}"
-SKIP_WANDB_CHECK="${SKIP_WANDB_CHECK:-0}"
+FORCE_EPYMARL_CLONE="${FORCE_EPYMARL_CLONE:-0}"
+FORCE_PIP_INSTALL="${FORCE_PIP_INSTALL:-0}"
+SKIP_PIP_UPGRADE="${SKIP_PIP_UPGRADE:-0}"
 RECREATE_VENV="${RECREATE_VENV:-0}"
+PIP_TIMEOUT="${PIP_TIMEOUT:-120}"
+
+epymarl_present() {
+  [[ -f "${EPYMARL_DIR}/src/main.py" ]]
+}
 
 echo "==> ant-colony-epymarl setup"
 echo "    repo: ${REPO_ROOT}"
@@ -39,17 +46,29 @@ if [[ ! -d "${PATCH_DIR}" ]]; then
   exit 1
 fi
 
-# --- EPyMARL: fresh clone + patches ---
-if [[ -d "${EPYMARL_DIR}" ]]; then
-  echo "==> removing existing epymarl/"
-  rm -rf "${EPYMARL_DIR}"
+# --- EPyMARL: clone only when missing (unless forced) ---
+EPYMARL_EXISTED=0
+if epymarl_present; then
+  EPYMARL_EXISTED=1
 fi
 
-echo "==> cloning EPyMARL (${EPYMARL_REF})"
-if ! git clone --depth 1 --branch "${EPYMARL_REF}" "${EPYMARL_REPO}" "${EPYMARL_DIR}" 2>/dev/null; then
-  git clone --depth 1 "${EPYMARL_REPO}" "${EPYMARL_DIR}"
-  if [[ "${EPYMARL_REF}" != "main" && "${EPYMARL_REF}" != "master" ]]; then
-    (cd "${EPYMARL_DIR}" && git fetch --depth 1 origin "${EPYMARL_REF}" && git checkout "${EPYMARL_REF}")
+if [[ "${FORCE_EPYMARL_CLONE}" == "1" ]]; then
+  if [[ -d "${EPYMARL_DIR}" ]]; then
+    echo "==> removing existing epymarl/ (FORCE_EPYMARL_CLONE=1)"
+    rm -rf "${EPYMARL_DIR}"
+  fi
+  EPYMARL_EXISTED=0
+fi
+
+if epymarl_present; then
+  echo "==> keeping existing epymarl/"
+else
+  echo "==> cloning EPyMARL (${EPYMARL_REF})"
+  if ! git clone --depth 1 --branch "${EPYMARL_REF}" "${EPYMARL_REPO}" "${EPYMARL_DIR}" 2>/dev/null; then
+    git clone --depth 1 "${EPYMARL_REPO}" "${EPYMARL_DIR}"
+    if [[ "${EPYMARL_REF}" != "main" && "${EPYMARL_REF}" != "master" ]]; then
+      (cd "${EPYMARL_DIR}" && git fetch --depth 1 origin "${EPYMARL_REF}" && git checkout "${EPYMARL_REF}")
+    fi
   fi
 fi
 
@@ -69,9 +88,13 @@ if [[ ! -f "${REQUIREMENTS}" ]]; then
   exit 1
 fi
 
+VENV_EXISTED=0
+[[ -d "${VENV_DIR}" ]] && VENV_EXISTED=1
+
 if [[ "${RECREATE_VENV}" == "1" && -d "${VENV_DIR}" ]]; then
   echo "==> removing existing .venv/"
   rm -rf "${VENV_DIR}"
+  VENV_EXISTED=0
 fi
 
 if [[ ! -d "${VENV_DIR}" ]]; then
@@ -81,32 +104,30 @@ fi
 
 PIP="${VENV_DIR}/bin/pip"
 PY="${VENV_DIR}/bin/python"
-WANDB="${VENV_DIR}/bin/wandb"
 
-echo "==> installing requirements"
-"${PIP}" install -U pip wheel
-"${PIP}" install -r "${REQUIREMENTS}"
+pip_install() {
+  local pip_args=(--default-timeout="${PIP_TIMEOUT}")
+  if [[ "${SKIP_PIP_UPGRADE}" != "1" ]]; then
+    echo "==> upgrading pip/wheel"
+    "${PIP}" install "${pip_args[@]}" -U pip wheel
+  fi
+  echo "==> installing requirements (already-installed packages are skipped by pip)"
+  "${PIP}" install "${pip_args[@]}" -r "${REQUIREMENTS}"
+}
 
-export PYTHONPATH="${REPO_ROOT}:${REPO_ROOT}/epymarl/src"
+if [[ "${FORCE_PIP_INSTALL}" == "1" ]]; then
+  pip_install
+elif [[ "${EPYMARL_EXISTED}" == "1" && "${VENV_EXISTED}" == "1" ]]; then
+  echo "==> pip install skipped (epymarl/ and .venv/ already present; use FORCE_PIP_INSTALL=1 to reinstall)"
+else
+  pip_install
+fi
+
+# shellcheck disable=SC1091
+source "${REPO_ROOT}/scripts/lib/common.sh"
+export_pythonpath "${REPO_ROOT}"
 echo "==> registering antcolony environment"
 "${PY}" -c "import antcolony"
-
-# --- Weights & Biases (installed in .venv — not on system PATH until activated) ---
-echo "==> checking wandb"
-WANDB_READY=0
-if ! "${PY}" -c "import wandb" 2>/dev/null; then
-  echo "error: wandb package missing after install" >&2
-  exit 1
-fi
-if [[ "${SKIP_WANDB_CHECK}" == "1" ]]; then
-  echo "    check skipped (SKIP_WANDB_CHECK=1)"
-elif "${WANDB}" status 2>/dev/null | grep -q "Logged in"; then
-  WANDB_READY=1
-  echo "    logged in as: $("${WANDB}" whoami 2>/dev/null | head -1 || echo "?")"
-  "${WANDB}" status 2>/dev/null | sed 's/^/    /' || true
-else
-  echo "    not logged in yet (this is OK right after clone)"
-fi
 
 echo ""
 echo "Setup complete."
@@ -114,11 +135,5 @@ echo "  commit:  $(git -C "${REPO_ROOT}" rev-parse --short HEAD 2>/dev/null || e
 echo "  epymarl: ${EPYMARL_DIR}"
 echo "  venv:    ${VENV_DIR}"
 echo ""
-if [[ "${WANDB_READY}" -eq 0 && "${SKIP_WANDB_CHECK}" != "1" ]]; then
-  echo "Next (wandb is only inside .venv — 'wandb' alone will not work yet):"
-  echo "  ./wandb_login.sh"
-  echo "  ./train.sh"
-else
-  echo "Train:"
-  echo "  ./train.sh"
-fi
+echo "Train:"
+echo "  ./train.sh"

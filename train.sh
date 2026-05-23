@@ -22,7 +22,6 @@ activate_venv
 require_epymarl
 
 PY="${REPO_ROOT}/.venv/bin/python"
-check_wandb_ready "${PY}"
 
 echo "==> MAPPO training (env-config=${ENV_CONFIG}, wandb_mode=${WANDB_MODE})"
 cd "${REPO_ROOT}/epymarl/src"

@@ -11,6 +11,11 @@ repo_root() {
   fi
 }
 
+export_pythonpath() {
+  local root="${1:-$(repo_root)}"
+  export PYTHONPATH="${root}:${root}/epymarl/src"
+}
+
 activate_venv() {
   local root
   root="$(repo_root)"
@@ -20,8 +25,7 @@ activate_venv() {
   fi
   # shellcheck disable=SC1091
   source "${root}/.venv/bin/activate"
-  # shellcheck disable=SC1091
-  source "${root}/scripts/env.sh"
+  export_pythonpath "${root}"
 }
 
 require_epymarl() {
@@ -31,18 +35,4 @@ require_epymarl() {
     echo "error: epymarl/ missing. Run ./setup.sh first." >&2
     return 1
   fi
-}
-
-check_wandb_ready() {
-  local py="${1:-python}"
-  if ! "${py}" -c "import wandb" 2>/dev/null; then
-    echo "error: wandb is not installed." >&2
-    return 1
-  fi
-  if ! "${py}" -m wandb status 2>/dev/null | grep -q "Logged in"; then
-    echo "error: wandb is not logged in. Run: wandb login" >&2
-    return 1
-  fi
-  echo "wandb: OK ($("${py}" -m wandb whoami 2>/dev/null | head -1 || echo "?"))"
-  return 0
 }

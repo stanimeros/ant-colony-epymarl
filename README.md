@@ -27,30 +27,33 @@ Please cite EPyMARL / PyMARL when using their training code (see upstream README
 ```bash
 git clone https://github.com/stanimeros/ant-colony-epymarl.git
 cd ant-colony-epymarl
-chmod +x setup.sh train.sh wandb_login.sh
-./setup.sh          # installs wandb into .venv (not system-wide)
-./wandb_login.sh    # then log in — do NOT run bare `wandb login` before setup
+chmod +x setup.sh train.sh
+./setup.sh
 ./train.sh
 ```
 
-`wandb` is **not** on PATH until `.venv` exists. Use `./wandb_login.sh` or `source .venv/bin/activate && wandb login`.
+Configure Weights & Biases yourself before training (e.g. `source .venv/bin/activate && wandb login`, or `WANDB_API_KEY`).
 
 `setup.sh` will:
 
 1. `git fetch` + `git reset --hard origin/main` + `git clean -fd` (force match remote)
-2. Clone EPyMARL, apply `epymarl-patches/`
-3. Create `.venv/`, install `requirements.txt` (includes wandb)
-4. Report wandb login status (training still requires login via `./wandb_login.sh`)
+2. Clone EPyMARL **only if** `epymarl/` is missing; **always** re-apply `epymarl-patches/`
+3. Create `.venv/` and install `requirements.txt` on first run; **skip pip** on later runs if `epymarl/` was already present
 
 Server options:
 
 ```bash
 GIT_BRANCH=main ./setup.sh              # default branch to sync
-RECREATE_VENV=1 ./setup.sh              # rebuild venv
-SKIP_GIT_SYNC=1 ./setup.sh            # skip git reset (e.g. no remote)
-SKIP_WANDB_CHECK=1 ./setup.sh         # skip wandb login check
-EPYMARL_REF=cbc38c0 ./setup.sh        # pin upstream EPyMARL commit
+SKIP_GIT_SYNC=1 ./setup.sh              # skip git reset (e.g. no remote)
+FORCE_EPYMARL_CLONE=1 ./setup.sh        # delete and re-clone epymarl/
+FORCE_PIP_INSTALL=1 ./setup.sh          # reinstall requirements even if epymarl/ exists
+RECREATE_VENV=1 ./setup.sh              # rebuild venv (still runs pip unless epymarl/ existed)
+SKIP_PIP_UPGRADE=1 ./setup.sh           # skip pip -U pip wheel
+PIP_TIMEOUT=300 ./setup.sh              # longer PyPI timeout on slow networks (default 120)
+EPYMARL_REF=cbc38c0 ./setup.sh          # pin upstream EPyMARL commit (first clone only)
 ```
+
+On slow HPC links, `ReadTimeoutError` retries from pip are normal — let the **first** `./setup.sh` finish. Later `./setup.sh` runs only refresh patches (fast).
 
 ## Train
 
@@ -98,7 +101,7 @@ Pheromone is deposited automatically when `carrying_food == 1`; grid evaporates 
 
 ```bash
 source .venv/bin/activate
-source scripts/env.sh
+export PYTHONPATH="${PWD}:${PWD}/epymarl/src"
 python scripts/smoke_test_env.py
 python scripts/test_ant_foraging.py
 ```
@@ -107,7 +110,7 @@ python scripts/test_ant_foraging.py
 
 ```bash
 source .venv/bin/activate
-source scripts/env.sh
+export PYTHONPATH="${PWD}:${PWD}/epymarl/src"
 cd epymarl/src
 python main.py --config=qmix --env-config=ant_colony
 ```
@@ -120,11 +123,7 @@ python main.py --config=mappo --env-config=ant_colony common_reward=False
 
 ### Weights & Biases
 
-W&B is enabled in `ant_colony.yaml` (`use_wandb: True`, project `ant-colony-foraging`). Auth uses the project venv:
-
-```bash
-./wandb_login.sh
-```
+W&B is enabled in `ant_colony.yaml` (`use_wandb: True`, project `ant-colony-foraging`). Log in or set credentials yourself before training.
 
 Train with online sync:
 
