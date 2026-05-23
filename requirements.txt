@@ -1,0 +1,4 @@
+gymnasium>=0.29
+numpy>=1.24
+wandb>=0.16
+-r epymarl/requirements.txt

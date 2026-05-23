@@ -1,0 +1,32 @@
+env: "gymma"
+
+env_args:
+  key: "antcolony:AntColony-v0"
+  time_limit: 200
+  pretrained_wrapper: null
+  n_ants: 8
+  grid_width: 16
+  grid_height: 16
+  max_steps: 200
+  n_food: 12
+  wall_fraction: 0.10
+  obs_dim: 30
+
+# Cooperative global reward (required for QMIX / VDN).
+common_reward: True
+reward_scalarisation: "sum"
+
+test_greedy: True
+test_nepisode: 32
+test_interval: 10000
+log_interval: 10000
+runner_log_interval: 2000
+learner_log_interval: 2000
+t_max: 500000
+
+# Weights & Biases (`wandb login` once; optional: with wandb_team=... wandb_mode=online)
+use_wandb: True
+wandb_team: null
+wandb_project: "ant-colony-foraging"
+wandb_mode: "offline"
+wandb_save_model: False
