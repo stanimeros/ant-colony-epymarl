@@ -123,6 +123,7 @@ else
   pip_install
 fi
 
+export REPO_ROOT
 # shellcheck disable=SC1091
 source "${REPO_ROOT}/scripts/lib/common.sh"
 export_pythonpath "${REPO_ROOT}"

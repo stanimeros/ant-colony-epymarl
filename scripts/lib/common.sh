@@ -2,13 +2,25 @@
 # Shared helpers for setup.sh / train.sh (source, do not execute).
 
 repo_root() {
-  local caller_dir
-  caller_dir="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
-  if [[ -f "${caller_dir}/setup.sh" ]]; then
-    echo "${caller_dir}"
-  else
-    echo "$(cd "${caller_dir}/.." && pwd)"
+  if [[ -n "${REPO_ROOT:-}" ]]; then
+    echo "${REPO_ROOT}"
+    return 0
   fi
+
+  local i dir
+  for ((i = ${#BASH_SOURCE[@]} - 1; i >= 0; i--)); do
+    dir="$(cd "$(dirname "${BASH_SOURCE[$i]}")" && pwd)"
+    while [[ "${dir}" != "/" ]]; do
+      if [[ -f "${dir}/setup.sh" ]]; then
+        echo "${dir}"
+        return 0
+      fi
+      dir="$(dirname "${dir}")"
+    done
+  done
+
+  echo "error: could not find repo root (no setup.sh in call stack)" >&2
+  return 1
 }
 
 export_pythonpath() {
