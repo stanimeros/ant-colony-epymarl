@@ -7,4 +7,5 @@ Add new patches by copying the relative path from an EPyMARL checkout, e.g. `src
 Current patches:
 
 - `src/config/envs/ant_colony.yaml` — ant foraging env + W&B defaults
+- `src/envs/__init__.py` — optional `smaclite` (ant colony only needs `gymma`)
 - `src/utils/logging.py` — W&B entity defaults to `wandb login` when `wandb_team` is null
