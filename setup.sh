@@ -19,7 +19,10 @@ FORCE_EPYMARL_CLONE="${FORCE_EPYMARL_CLONE:-0}"
 FORCE_PIP_INSTALL="${FORCE_PIP_INSTALL:-0}"
 SKIP_PIP_UPGRADE="${SKIP_PIP_UPGRADE:-0}"
 RECREATE_VENV="${RECREATE_VENV:-0}"
+CLEAN_RUNS="${CLEAN_RUNS:-1}"
 PIP_TIMEOUT="${PIP_TIMEOUT:-120}"
+TORCH_INDEX_URL="${TORCH_INDEX_URL:-https://download.pytorch.org/whl/cu121}"
+FILTERED_EPYMARL_REQ="${REPO_ROOT}/.epymarl-requirements.filtered"
 
 epymarl_present() {
   [[ -f "${EPYMARL_DIR}/src/main.py" ]]
@@ -27,6 +30,16 @@ epymarl_present() {
 
 echo "==> ant-colony-epymarl setup"
 echo "    repo: ${REPO_ROOT}"
+
+export REPO_ROOT
+# shellcheck disable=SC1091
+source "${REPO_ROOT}/scripts/lib/common.sh"
+
+if [[ "${CLEAN_RUNS}" == "1" ]]; then
+  cleanup_training_state "${REPO_ROOT}"
+else
+  echo "==> run cleanup skipped (CLEAN_RUNS=0)"
+fi
 
 # --- Force sync with remote (discard local changes) ---
 if [[ "${SKIP_GIT_SYNC}" == "1" ]]; then
@@ -105,14 +118,25 @@ fi
 PIP="${VENV_DIR}/bin/pip"
 PY="${VENV_DIR}/bin/python"
 
+write_filtered_epymarl_requirements() {
+  {
+    head -n 3 "${REQUIREMENTS}"
+    if [[ -f "${EPYMARL_DIR}/requirements.txt" ]]; then
+      grep -Ev '^(torch|torchvision)([<>=!~[:space:]]|$)' "${EPYMARL_DIR}/requirements.txt"
+    fi
+  } > "${FILTERED_EPYMARL_REQ}"
+}
+
 pip_install() {
   local pip_args=(--default-timeout="${PIP_TIMEOUT}")
   if [[ "${SKIP_PIP_UPGRADE}" != "1" ]]; then
     echo "==> upgrading pip/wheel"
     "${PIP}" install "${pip_args[@]}" -U pip wheel
   fi
-  echo "==> installing requirements (already-installed packages are skipped by pip)"
-  "${PIP}" install "${pip_args[@]}" -r "${REQUIREMENTS}"
+  write_filtered_epymarl_requirements
+  echo "==> installing Python dependencies (torch via CUDA 12.1 wheels)"
+  "${PIP}" install "${pip_args[@]}" -r "${FILTERED_EPYMARL_REQ}"
+  install_pytorch_cuda "${PIP}"
 }
 
 if [[ "${FORCE_PIP_INSTALL}" == "1" ]]; then
@@ -123,9 +147,7 @@ else
   pip_install
 fi
 
-export REPO_ROOT
-# shellcheck disable=SC1091
-source "${REPO_ROOT}/scripts/lib/common.sh"
+ensure_pytorch_cuda "${PY}" "${PIP}"
 export_pythonpath "${REPO_ROOT}"
 echo "==> registering antcolony environment"
 "${PY}" -c "import antcolony"

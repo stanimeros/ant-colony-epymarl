@@ -36,22 +36,28 @@ Configure Weights & Biases yourself before training (e.g. `source .venv/bin/acti
 
 `setup.sh` will:
 
-1. `git fetch` + `git reset --hard origin/main` + `git clean -fd` (force match remote)
-2. Clone EPyMARL **only if** `epymarl/` is missing; **always** re-apply `epymarl-patches/`
-3. Create `.venv/` and install `requirements.txt` on first run; **skip pip** on later runs if `epymarl/` was already present
+1. **Stop** stray `main.py` training processes for this repo and **clear** `epymarl/*/results` (Sacred logs)
+2. `git fetch` + `git reset --hard origin/main` + `git clean -fd` (force match remote)
+3. Clone EPyMARL **only if** `epymarl/` is missing; **always** re-apply `epymarl-patches/`
+4. Create `.venv/` and install deps on first run; **skip pip** on later runs if `epymarl/` + `.venv/` exist
+5. **Fix PyTorch CUDA** when needed (installs `cu121` wheels for driver CUDA 12.x — avoids CUDA 13 / driver mismatch)
 
 Server options:
 
 ```bash
 GIT_BRANCH=main ./setup.sh              # default branch to sync
 SKIP_GIT_SYNC=1 ./setup.sh              # skip git reset (e.g. no remote)
+CLEAN_RUNS=0 ./setup.sh                 # do not kill training PIDs or clear results/
 FORCE_EPYMARL_CLONE=1 ./setup.sh        # delete and re-clone epymarl/
 FORCE_PIP_INSTALL=1 ./setup.sh          # reinstall requirements even if epymarl/ exists
 RECREATE_VENV=1 ./setup.sh              # rebuild venv (still runs pip unless epymarl/ existed)
 SKIP_PIP_UPGRADE=1 ./setup.sh           # skip pip -U pip wheel
+SKIP_CUDA_FIX=1 ./setup.sh              # skip PyTorch CUDA repair check
 PIP_TIMEOUT=300 ./setup.sh              # longer PyPI timeout on slow networks (default 120)
 EPYMARL_REF=cbc38c0 ./setup.sh          # pin upstream EPyMARL commit (first clone only)
 ```
+
+**CUDA on Titan (driver 535 / CUDA 12.2):** default PyPI `torch` may pull CUDA 13 wheels and fail with “driver too old”. `./setup.sh` installs `cu121` PyTorch and re-checks `torch.cuda.is_available()`. After a bad install, run `./setup.sh` again (fast if pip skipped — CUDA fix still runs).
 
 On slow HPC links, `ReadTimeoutError` retries from pip are normal — let the **first** `./setup.sh` finish. Later `./setup.sh` runs only refresh patches (fast).
 

@@ -46,6 +46,7 @@ Thumbs.db
 epymarl/
 
 # --- EPyMARL training outputs ---
+.epymarl-requirements.filtered
 epymarl/results/
 epymarl/src/results/
 epymarl/src/tb_logs/
