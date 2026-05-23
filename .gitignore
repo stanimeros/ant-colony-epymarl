@@ -47,6 +47,7 @@ epymarl/
 
 # --- EPyMARL training outputs ---
 .epymarl-requirements.filtered
+logs/
 epymarl/results/
 epymarl/src/results/
 epymarl/src/tb_logs/

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start MAPPO training on the ant foraging environment.
+# Start MAPPO training (nohup by default — survives SSH disconnect).
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -10,6 +10,8 @@ CONFIG="${CONFIG:-mappo}"
 ENV_CONFIG="${ENV_CONFIG:-ant_colony}"
 WANDB_MODE="${WANDB_MODE:-online}"
 SEED="${SEED:-}"
+FOREGROUND="${FOREGROUND:-0}"
+LOG_DIR="${LOG_DIR:-${REPO_ROOT}/logs}"
 
 # shellcheck disable=SC1091
 source "${REPO_ROOT}/scripts/lib/common.sh"
@@ -23,6 +25,9 @@ activate_venv
 require_epymarl
 
 PY="${REPO_ROOT}/.venv/bin/python"
+PIP="${REPO_ROOT}/.venv/bin/pip"
+
+require_pytorch_cuda "${PY}" "${PIP}"
 
 echo "==> MAPPO training (env-config=${ENV_CONFIG}, wandb_mode=${WANDB_MODE})"
 cd "${REPO_ROOT}/epymarl/src"
@@ -50,5 +55,21 @@ if [[ $# -gt 0 ]]; then
   ARGS+=("$@")
 fi
 
+if [[ "${FOREGROUND}" == "1" ]]; then
+  echo "    python ${ARGS[*]}"
+  exec "${PY}" "${ARGS[@]}"
+fi
+
+mkdir -p "${LOG_DIR}"
+LOG_FILE="${LOG_DIR}/train-$(date +%Y%m%d-%H%M%S).log"
+PID_FILE="${LOG_DIR}/train.pid"
+
+echo "==> starting training in background (nohup)"
 echo "    python ${ARGS[*]}"
-exec "${PY}" "${ARGS[@]}"
+nohup "${PY}" "${ARGS[@]}" >> "${LOG_FILE}" 2>&1 &
+TRAIN_PID=$!
+echo "${TRAIN_PID}" > "${PID_FILE}"
+
+echo "    pid:  ${TRAIN_PID} (saved to ${PID_FILE})"
+echo "    log:  ${LOG_FILE}"
+echo "    tail: tail -f ${LOG_FILE}"

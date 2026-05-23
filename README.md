@@ -57,7 +57,14 @@ PIP_TIMEOUT=300 ./setup.sh              # longer PyPI timeout on slow networks (
 EPYMARL_REF=cbc38c0 ./setup.sh          # pin upstream EPyMARL commit (first clone only)
 ```
 
-**CUDA on Titan (driver 535 / CUDA 12.2):** default PyPI `torch` may pull CUDA 13 wheels and fail with “driver too old”. `./setup.sh` installs `cu121` PyTorch and re-checks `torch.cuda.is_available()`. After a bad install, run `./setup.sh` again (fast if pip skipped — CUDA fix still runs).
+**CUDA on Titan (driver 535 / CUDA 12.2):** default PyPI `torch` may pull CUDA 13 wheels and fail with “driver too old”. `./setup.sh` and `./train.sh` reinstall `cu121` PyTorch when `torch.cuda.is_available()` is false. If training logs `use_cuda was switched OFF`, run:
+
+```bash
+./setup.sh    # reinstalls cu121 torch if needed
+./train.sh
+```
+
+Check GPU: `.venv/bin/python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda)"`. CPU-only training: `ALLOW_CPU=1 ./train.sh`.
 
 On slow HPC links, `ReadTimeoutError` retries from pip are normal — let the **first** `./setup.sh` finish. Later `./setup.sh` runs only refresh patches (fast).
 
@@ -66,6 +73,10 @@ On slow HPC links, `ReadTimeoutError` retries from pip are normal — let the **
 ```bash
 ./train.sh
 ```
+
+Runs in the **background** with `nohup` (safe to close SSH). Logs go to `logs/train-*.log`. Follow with `tail -f logs/train-*.log`.
+
+Foreground (blocks terminal): `FOREGROUND=1 ./train.sh`
 
 Defaults: **MAPPO**, `ant_colony` env, `wandb_mode=online`. Overrides:
 

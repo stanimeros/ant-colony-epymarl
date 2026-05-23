@@ -106,8 +106,10 @@ install_pytorch_cuda() {
   local pip="${1:?pip required}"
   local pip_args=(--default-timeout="${PIP_TIMEOUT:-120}")
   local index="${TORCH_INDEX_URL:-https://download.pytorch.org/whl/cu121}"
-  echo "==> installing PyTorch (CUDA 12.1 wheels via ${index})"
-  "${pip}" install "${pip_args[@]}" --upgrade torch torchvision --index-url "${index}"
+  echo "==> reinstalling PyTorch (CUDA 12.1 wheels via ${index})"
+  "${pip}" uninstall -y torch torchvision 2>/dev/null || true
+  "${pip}" install "${pip_args[@]}" --no-cache-dir \
+    --force-reinstall torch torchvision --index-url "${index}"
 }
 
 verify_pytorch_cuda() {
@@ -128,11 +130,18 @@ else:
 "
 }
 
-ensure_pytorch_cuda() {
+require_pytorch_cuda() {
   local py="${1:?python required}"
   local pip="${2:?pip required}"
   if [[ "${SKIP_CUDA_FIX:-0}" == "1" ]]; then
     echo "==> CUDA PyTorch check skipped (SKIP_CUDA_FIX=1)"
+    return 0
+  fi
+  if [[ "${ALLOW_CPU:-0}" == "1" ]]; then
+    echo "==> ALLOW_CPU=1 (will not require GPU)"
+    return 0
+  fi
+  if ! command -v nvidia-smi >/dev/null 2>&1; then
     return 0
   fi
   if pytorch_cuda_broken "${py}"; then
@@ -141,4 +150,9 @@ ensure_pytorch_cuda() {
     echo "==> PyTorch CUDA OK"
   fi
   verify_pytorch_cuda "${py}"
+}
+
+# setup.sh
+ensure_pytorch_cuda() {
+  require_pytorch_cuda "$@"
 }
