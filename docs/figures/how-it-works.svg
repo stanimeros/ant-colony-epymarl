@@ -1,60 +1,57 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" role="img" aria-label="How ant foraging works">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-label="How ant foraging works">
   <defs>
     <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
       <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#e8e0d4" stroke-width="1"/>
     </pattern>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-      <path d="M0,0 L8,4 L0,8 Z" fill="#c45c26"/>
+    <marker id="arrow" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#ea580c"/>
     </marker>
   </defs>
-  <rect width="720" height="380" rx="16" fill="#faf6f0"/>
-  <text x="360" y="36" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" font-weight="600" fill="#3d2914">One colony, one shared goal</text>
 
-  <!-- world -->
-  <rect x="40" y="56" width="280" height="280" rx="12" fill="url(#grid)" stroke="#d4c8b8" stroke-width="2"/>
-  <!-- nest -->
-  <circle cx="180" cy="196" r="28" fill="#8b5e34" stroke="#5c3d1e" stroke-width="2"/>
-  <text x="180" y="202" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#fff">Nest</text>
-  <!-- walls -->
-  <rect x="88" y="120" width="22" height="22" rx="3" fill="#9ca3af"/>
-  <rect x="248" y="248" width="22" height="22" rx="3" fill="#9ca3af"/>
-  <rect x="200" y="100" width="22" height="22" rx="3" fill="#9ca3af"/>
-  <!-- food -->
-  <circle cx="100" cy="260" r="10" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
-  <circle cx="260" cy="120" r="10" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
-  <circle cx="270" cy="270" r="10" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
-  <!-- pheromone trail -->
-  <path d="M100 260 Q140 220 180 196" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" opacity="0.7" marker-end="url(#arrow)"/>
-  <!-- ants -->
-  <g transform="translate(130 230)">
-    <ellipse cx="0" cy="0" rx="8" ry="6" fill="#3d2914"/>
-    <ellipse cx="0" cy="10" rx="6" ry="5" fill="#5c3d1e"/>
+  <rect width="720" height="400" rx="16" fill="#faf6f0"/>
+  <text x="360" y="34" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" font-weight="600" fill="#3d2914">One colony, one shared goal</text>
+
+  <!-- grid world -->
+  <rect x="32" y="52" width="268" height="268" rx="12" fill="url(#grid)" stroke="#d4c8b8" stroke-width="2"/>
+  <circle cx="166" cy="186" r="26" fill="#8b5e34" stroke="#5c3d1e" stroke-width="2"/>
+  <text x="166" y="191" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#fff">Nest</text>
+  <rect x="78" y="112" width="20" height="20" rx="3" fill="#9ca3af"/>
+  <rect x="232" y="232" width="20" height="20" rx="3" fill="#9ca3af"/>
+  <rect x="188" y="92" width="20" height="20" rx="3" fill="#9ca3af"/>
+  <circle cx="92" cy="248" r="9" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+  <circle cx="244" cy="112" r="9" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+  <circle cx="252" cy="252" r="9" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+  <!-- pheromone trail: thin line, small arrow, stops before nest -->
+  <path d="M92 248 Q128 210 152 192" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" opacity="0.85" marker-end="url(#arrow)"/>
+  <g transform="translate(118 218)">
+    <ellipse cx="0" cy="0" rx="7" ry="5" fill="#3d2914"/>
+    <ellipse cx="0" cy="9" rx="5" ry="4" fill="#5c3d1e"/>
   </g>
-  <g transform="translate(220 150)">
-    <ellipse cx="0" cy="0" rx="8" ry="6" fill="#3d2914"/>
-    <ellipse cx="0" cy="10" rx="6" ry="5" fill="#5c3d1e"/>
+  <g transform="translate(200 138)">
+    <ellipse cx="0" cy="0" rx="7" ry="5" fill="#3d2914"/>
+    <ellipse cx="0" cy="9" rx="5" ry="4" fill="#5c3d1e"/>
   </g>
-  <g transform="translate(155 175)">
-    <ellipse cx="0" cy="0" rx="8" ry="6" fill="#3d2914"/>
-    <circle cx="0" cy="-6" r="5" fill="#22c55e" opacity="0.9"/>
-    <ellipse cx="0" cy="10" rx="6" ry="5" fill="#5c3d1e"/>
+  <g transform="translate(142 162)">
+    <ellipse cx="0" cy="0" rx="7" ry="5" fill="#3d2914"/>
+    <circle cx="0" cy="-5" r="4" fill="#22c55e"/>
+    <ellipse cx="0" cy="9" rx="5" ry="4" fill="#5c3d1e"/>
   </g>
 
-  <!-- steps -->
+  <!-- step cards -->
   <g font-family="system-ui,sans-serif" fill="#3d2914">
-    <rect x="360" y="72" width="320" height="64" rx="10" fill="#fff" stroke="#e8e0d4"/>
-    <text x="380" y="98" font-size="15" font-weight="600">1. Explore</text>
-    <text x="380" y="118" font-size="13" fill="#6b5b4f">Ants wander the grid and pick up food.</text>
+    <rect x="328" y="68" width="360" height="70" rx="10" fill="#fff" stroke="#e8e0d4"/>
+    <text x="348" y="94" font-size="15" font-weight="600">1. Explore</text>
+    <text x="348" y="116" font-size="12" fill="#6b5b4f">Ants search the grid and pick up food.</text>
 
-    <rect x="360" y="148" width="320" height="64" rx="10" fill="#fff" stroke="#e8e0d4"/>
-    <text x="380" y="174" font-size="15" font-weight="600">2. Leave a trail</text>
-    <text x="380" y="194" font-size="13" fill="#6b5b4f">Carrying food? Drop pheromone on the way home.</text>
+    <rect x="328" y="150" width="360" height="70" rx="10" fill="#fff" stroke="#e8e0d4"/>
+    <text x="348" y="176" font-size="15" font-weight="600">2. Leave a trail</text>
+    <text x="348" y="198" font-size="12" fill="#6b5b4f">While carrying food, they lay pheromone toward the nest.</text>
 
-    <rect x="360" y="224" width="320" height="64" rx="10" fill="#fff" stroke="#e8e0d4"/>
-    <text x="380" y="250" font-size="15" font-weight="600">3. Cooperate</text>
-    <text x="380" y="270" font-size="13" fill="#6b5b4f">The whole team shares reward  success is collective.</text>
+    <rect x="328" y="232" width="360" height="70" rx="10" fill="#fff" stroke="#e8e0d4"/>
+    <text x="348" y="258" font-size="15" font-weight="600">3. Cooperate</text>
+    <text x="348" y="280" font-size="12" fill="#6b5b4f">The whole colony shares one reward.</text>
 
-    <rect x="360" y="300" width="320" height="48" rx="10" fill="#fef3c7" stroke="#f59e0b"/>
-    <text x="380" y="328" font-size="13" font-weight="600">Win condition: bring every food piece back to the nest.</text>
+    <rect x="328" y="314" width="360" height="56" rx="10" fill="#fef3c7" stroke="#f59e0b"/>
+    <text x="348" y="340" font-size="12" font-weight="600">Win: deliver every food piece back to the nest.</text>
   </g>
 </svg>
