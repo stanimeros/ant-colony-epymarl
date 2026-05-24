@@ -48,16 +48,15 @@ Eight ants, twelve food pieces, a compact map — our first run where the swarm 
   <img src="docs/figures/mappo_16x16_learning_curves.png" width="720" alt="Training curves for the 16x16 ant foraging run"/>
 </p>
 
-*How learning looked over time (from [Weights & Biases](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging/runs/x11wd1h0)).*
+*How learning looked over time on the 16×16 world (logged during training).*
 
 **Takeaway:** the colony goes from random wandering to **organized foraging** — higher scores, more food delivered, shorter episodes.
 
 <details>
-<summary><strong>More detail &amp; live dashboard</strong></summary>
+<summary><strong>Run setup (16×16)</strong></summary>
 
-- Run: [rich-armadillo-3](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging/runs/x11wd1h0)
-- Project: [ant-colony-foraging](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging)
-- Trained on Titan (GPU), MAPPO, cooperative reward
+- Grid **16×16**, **8** ants, **12** food, **200** steps per episode  
+- **MAPPO**, cooperative team reward, trained on GPU  
 
 </details>
 
@@ -85,8 +84,6 @@ chmod +x setup.sh train.sh
 ./train.sh
 ```
 
-Log in to [Weights & Biases](https://wandb.ai) once if you want online charts (`wandb login` inside `.venv`).
-
 Training runs in the **background** — safe to disconnect SSH. Watch progress:
 
 ```bash
@@ -102,7 +99,7 @@ tail -f logs/train-*.log
 | `antcolony/` | The foraging world (ants, food, nest, pheromone) |
 | `epymarl-patches/` | Our tweaks to the training stack |
 | `docs/figures/` | README diagrams and learning-curve images |
-| `scripts/` | Tests and W&B plot helper |
+| `scripts/` | Tests and plot scripts |
 
 Full setup flags, observation layout, and patch workflow → **[docs/DEVELOPERS.md](docs/DEVELOPERS.md)**.
 
