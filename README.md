@@ -33,17 +33,21 @@ Learning is done with **MAPPO** (many ants learning together) on top of [EPyMARL
 
 ## Observations, actions, rewards
 
-Each ant sees only its **local neighbourhood** — no global map position. Pickup, pheromone drops, and nest delivery are **automatic** when an ant moves onto the right cell (not separate actions).
+Each ant only gets what a real ant could sense on the ground — no satellite view of the whole map. Pickup, pheromone drops, and nest delivery are **automatic** when an ant moves onto the right cell (not separate actions).
 
 ### Observations (30 numbers per ant)
 
-| Part | What it tells the ant |
-|------|------------------------|
-| **27 values** | **3×3** patch around the ant: per cell, **wall** (0/1), **food** (0/1), **pheromone** strength |
-| **1 value** | **Carrying food** (0 or 1) |
-| **2 values** | **Direction home** — a path-integration vector toward the nest (updated as the ant moves; not GPS coordinates) |
+Real ants don’t have GPS. They combine **what they see nearby** with an **internal sense of where home is**, built from their own movement (path integration — like keeping a running estimate of “how far and which way I’ve walked from the nest”). This environment mirrors that:
 
-Pheromone is laid automatically while carrying food and fades by **×0.95** each step. **10%** of cells are random walls, fixed for the episode.
+| Part | Real-world idea | In the simulation |
+|------|-----------------|-------------------|
+| **27 values** | Short-range sensing (touch, smell, nearby landmarks) | **3×3** patch: **wall**, **food**, **pheromone** per cell |
+| **1 value** | Knowing you’re carrying something | **Carrying food** (0 or 1) |
+| **2 values** | Internal “compass + odometer” back to the nest — no global coordinates | **Direction home**: a vector that starts pointing toward the nest at spawn and **updates each step** as the ant moves (path integration, not GPS) |
+
+So an ant can find its way home after wandering because it **remembers the route in its body**, the same way desert ants use step-counting and turning cues — not because something tells it “you are at (x, y) on the grid.”
+
+Pheromone works like real trail chemistry: laid automatically while carrying food, fading by **×0.95** each step so old trails die out. **10%** of cells are random walls, fixed for the episode.
 
 ### Actions (5 discrete)
 
