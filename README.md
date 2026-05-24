@@ -22,6 +22,31 @@ Please cite EPyMARL / PyMARL when using their training code (see upstream README
 
 **Ant foraging** (`antcolony/`) is original to this repository.
 
+## Results
+
+### 16×16 — MAPPO (Titan Xp, CUDA)
+
+Baseline cooperative foraging run on **University of Macedonia Titan** (`torch` cu121, `use_cuda: True`). Config at train time: **16×16** grid, **8 ants**, **12 food**, **200** steps/episode, global reward (`common_reward: True`).
+
+| | Train | Test (greedy) |
+|---|------:|--------------:|
+| **Return** (`return_mean` / `test_return_mean`) | ~158 | ~155 |
+| **All food delivered** (`battle_won_mean` / `test_battle_won_mean`) | **~93%** | **~90%** |
+| **Deliveries per episode** (`total_deliveries_mean` / `test_total_deliveries_mean`) | **~11.9 / 12** | **~11.9 / 12** |
+| **Episode length** (`ep_length_mean` / `test_ep_length_mean`) | ~103 steps | ~109 steps |
+
+W&B run **[rich-armadillo-3](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging/runs/x11wd1h0)** (`x11wd1h0`) in project [`ant-colony-foraging`](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging). Metrics above are from the run summary while training was still in progress (`t_max` was the upstream MAPPO default 20M env steps; `save_model: False` — **no checkpoint** was written for replay/visualization).
+
+To reproduce the **16×16** setup on a smaller GPU:
+
+```bash
+TRAIN_WITH='env_args.grid_width=16 env_args.grid_height=16 env_args.n_ants=8 env_args.n_food=12 env_args.max_steps=200 env_args.time_limit=200 t_max=500000' ./train.sh
+```
+
+### 32×32 — current training default
+
+`epymarl-patches/src/config/envs/ant_colony.yaml` now targets **32×32**, **32 ants**, **24 food**, **800** steps, **`t_max: 500000`**, with MAPPO batch sizes reduced in `epymarl-patches/src/config/algs/mappo.yaml` for **~12GB VRAM** (64×64 / 64 ants OOM’d on Titan Xp).
+
 ## Setup (local or server)
 
 ```bash
@@ -70,7 +95,7 @@ Runs in the **background** with `nohup` (safe to close SSH). Logs go to `logs/tr
 
 Foreground (blocks terminal): `FOREGROUND=1 ./train.sh`
 
-Defaults: **MAPPO**, `ant_colony` env, `wandb_mode=online`. Overrides:
+Defaults: **MAPPO**, `ant_colony` env (**32×32**, 32 ants — see [Results](#results)), `wandb_mode=online`. Overrides:
 
 ```bash
 WANDB_MODE=offline ./train.sh
