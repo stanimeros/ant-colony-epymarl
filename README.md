@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="#the-idea">The idea</a> ·
+  <a href="#observations-actions-rewards">Obs &amp; rewards</a> ·
   <a href="#what-weve-seen-so-far">Results</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="docs/DEVELOPERS.md">Developer docs</a>
@@ -28,6 +29,46 @@ Everyone on the team gets the **same reward**: the colony wins when **all food i
 </p>
 
 Learning is done with **MAPPO** (many ants learning together) on top of [EPyMARL](https://github.com/uoe-agents/epymarl).
+
+---
+
+## Observations, actions, rewards
+
+Each ant sees only its **local neighbourhood** — no global map position. Pickup, pheromone drops, and nest delivery are **automatic** when an ant moves onto the right cell (not separate actions).
+
+### Observations (30 numbers per ant)
+
+| Part | What it tells the ant |
+|------|------------------------|
+| **27 values** | **3×3** patch around the ant: per cell, **wall** (0/1), **food** (0/1), **pheromone** strength |
+| **1 value** | **Carrying food** (0 or 1) |
+| **2 values** | **Direction home** — a path-integration vector toward the nest (updated as the ant moves; not GPS coordinates) |
+
+Pheromone is laid automatically while carrying food and fades by **×0.95** each step. **10%** of cells are random walls, fixed for the episode.
+
+### Actions (5 discrete)
+
+| ID | Action |
+|----|--------|
+| 0 | Stay |
+| 1 | Move up |
+| 2 | Move down |
+| 3 | Move left |
+| 4 | Move right |
+
+Walls block movement. Stepping on food **picks it up**; stepping on the nest while carrying **delivers** it.
+
+### Rewards (one shared team score per step)
+
+All ants get the **same** reward each step (cooperative MARL):
+
+| Event | Reward |
+|-------|--------:|
+| Food delivered to the nest | **+10** per piece |
+| Time (every step) | **−0.01** × number of ants |
+| All food delivered (episode success) | **+50** bonus |
+
+The step penalty encourages shorter, more efficient episodes. The big bonus appears when every piece of food is home.
 
 ---
 
@@ -101,7 +142,7 @@ tail -f logs/train-*.log
 | `docs/figures/` | README diagrams and learning-curve images |
 | `scripts/` | Tests and plot scripts |
 
-Full setup flags, observation layout, and patch workflow → **[docs/DEVELOPERS.md](docs/DEVELOPERS.md)**.
+Module-level details and patch workflow → **[docs/DEVELOPERS.md](docs/DEVELOPERS.md)**.
 
 ---
 
