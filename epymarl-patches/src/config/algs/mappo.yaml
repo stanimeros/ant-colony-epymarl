@@ -1,0 +1,36 @@
+# --- MAPPO overrides for ant_colony on ~12GB GPUs (Titan Xp) ---
+# Upstream defaults are tuned for SMAC; full file mirrors epymarl algs/mappo.yaml
+# with smaller batches and t_max aligned to envs/ant_colony.yaml.
+
+action_selector: "soft_policies"
+mask_before_softmax: True
+
+runner: "parallel"
+
+buffer_size: 8
+batch_size_run: 8
+batch_size: 8
+
+target_update_interval_or_tau: 0.01
+
+lr: 0.0003
+hidden_dim: 128
+
+obs_agent_id: True
+obs_last_action: False
+obs_individual_obs: False
+
+agent_output_type: "pi_logits"
+learner: "ppo_learner"
+entropy_coef: 0.001
+use_rnn: True
+standardise_returns: False
+standardise_rewards: True
+q_nstep: 5
+critic_type: "cv_critic"
+epochs: 4
+eps_clip: 0.2
+name: "mappo"
+
+# env ant_colony.yaml sets logging/checkpoints; avoid upstream 20M default
+t_max: 500000

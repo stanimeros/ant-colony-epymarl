@@ -4,11 +4,11 @@ env_args:
   key: "antcolony:AntColony-v0"
   time_limit: 800
   pretrained_wrapper: null
-  n_ants: 64
-  grid_width: 64
-  grid_height: 64
+  n_ants: 32
+  grid_width: 32
+  grid_height: 32
   max_steps: 800
-  n_food: 48
+  n_food: 24
   wall_fraction: 0.10
   obs_dim: 30
 
