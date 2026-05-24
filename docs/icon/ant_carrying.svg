@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Ant carrying food">
+  <defs>
+    <radialGradient id="abdomen" cx="45%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#6b4423"/>
+      <stop offset="100%" stop-color="#2d1f0f"/>
+    </radialGradient>
+    <radialGradient id="thorax" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#8b5e34"/>
+      <stop offset="100%" stop-color="#3d2914"/>
+    </radialGradient>
+    <radialGradient id="head" cx="38%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#a67c52"/>
+      <stop offset="100%" stop-color="#5c3d1e"/>
+    </radialGradient>
+    <radialGradient id="foodball" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="100%" stop-color="#c1121f"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="66" cy="70" rx="36" ry="40" fill="#1a1208" opacity="0.12"/>
+  <!-- food (behind / on back) -->
+  <circle cx="64" cy="58" r="20" fill="url(#foodball)" stroke="#7f1d1d" stroke-width="2.5"/>
+  <ellipse cx="58" cy="52" rx="6" ry="5" fill="#ffb4b4" opacity="0.55"/>
+  <g stroke="#2d1f0f" stroke-width="5" stroke-linecap="round">
+    <path d="M34 56 L14 48 M30 68 L10 72 M34 82 L16 96"/>
+    <path d="M94 56 L114 48 M98 68 L118 72 M94 82 L112 96"/>
+    <path d="M48 92 L38 112 M80 92 L90 112"/>
+  </g>
+  <ellipse cx="64" cy="82" rx="30" ry="32" fill="url(#abdomen)" stroke="#1a1208" stroke-width="2.5"/>
+  <ellipse cx="64" cy="54" rx="22" ry="22" fill="url(#thorax)" stroke="#1a1208" stroke-width="2.5"/>
+  <circle cx="64" cy="30" r="16" fill="url(#head)" stroke="#1a1208" stroke-width="2.5"/>
+  <path d="M44 64 Q64 60 84 64" fill="none" stroke="#3d2914" stroke-width="2" opacity="0.5"/>
+  <path d="M52 20 Q38 8 28 12" fill="none" stroke="#2d1f0f" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M76 20 Q90 8 100 12" fill="none" stroke="#2d1f0f" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="28" cy="12" r="4" fill="#2d1f0f"/>
+  <circle cx="100" cy="12" r="4" fill="#2d1f0f"/>
+  <circle cx="56" cy="28" r="4.5" fill="#fff" stroke="#1a1208" stroke-width="1"/>
+  <circle cx="72" cy="28" r="4.5" fill="#fff" stroke="#1a1208" stroke-width="1"/>
+  <circle cx="57" cy="29" r="2" fill="#1a1208"/>
+  <circle cx="73" cy="29" r="2" fill="#1a1208"/>
+  <ellipse cx="58" cy="78" rx="8" ry="10" fill="#8b5e34" opacity="0.25"/>
+</svg>

@@ -1,35 +1,43 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Ant">
   <defs>
-    <linearGradient id="body" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#3d2914"/>
-      <stop offset="100%" stop-color="#1a1208"/>
-    </linearGradient>
-    <linearGradient id="shine" x1="0%" y1="0%" x2="0%" y2="100%">
+    <radialGradient id="abdomen" cx="45%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#6b4423"/>
+      <stop offset="100%" stop-color="#2d1f0f"/>
+    </radialGradient>
+    <radialGradient id="thorax" cx="40%" cy="35%" r="65%">
       <stop offset="0%" stop-color="#8b5e34"/>
+      <stop offset="100%" stop-color="#3d2914"/>
+    </radialGradient>
+    <radialGradient id="head" cx="38%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#a67c52"/>
       <stop offset="100%" stop-color="#5c3d1e"/>
-    </linearGradient>
+    </radialGradient>
   </defs>
-  <!-- antennae -->
-  <path d="M44 28 Q32 8 22 14" fill="none" stroke="#2d1f0f" stroke-width="4" stroke-linecap="round"/>
-  <path d="M84 28 Q96 8 106 14" fill="none" stroke="#2d1f0f" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="22" cy="14" r="5" fill="#2d1f0f"/>
-  <circle cx="106" cy="14" r="5" fill="#2d1f0f"/>
-  <!-- head -->
-  <ellipse cx="64" cy="38" rx="26" ry="22" fill="url(#shine)"/>
-  <!-- eyes -->
-  <circle cx="54" cy="36" r="5" fill="#fff"/>
-  <circle cx="74" cy="36" r="5" fill="#fff"/>
-  <circle cx="55" cy="37" r="2.5" fill="#1a1208"/>
-  <circle cx="75" cy="37" r="2.5" fill="#1a1208"/>
-  <!-- thorax -->
-  <ellipse cx="64" cy="68" rx="22" ry="18" fill="url(#body)"/>
-  <!-- abdomen -->
-  <ellipse cx="64" cy="98" rx="30" ry="22" fill="url(#body)"/>
-  <ellipse cx="64" cy="94" rx="18" ry="8" fill="#6b4423" opacity="0.35"/>
-  <!-- legs -->
-  <g stroke="#2d1f0f" stroke-width="4" stroke-linecap="round">
-    <path d="M42 62 L18 78 M42 68 L14 92 M42 74 L20 108"/>
-    <path d="M86 62 L110 78 M86 68 L114 92 M86 74 L108 108"/>
-    <path d="M52 82 L36 100 M76 82 L92 100"/>
+  <!-- soft shadow -->
+  <ellipse cx="66" cy="70" rx="36" ry="40" fill="#1a1208" opacity="0.12"/>
+  <!-- legs (under body) -->
+  <g stroke="#2d1f0f" stroke-width="5" stroke-linecap="round">
+    <path d="M34 52 L14 44 M30 64 L10 68 M34 78 L16 92"/>
+    <path d="M94 52 L114 44 M98 64 L118 68 M94 78 L112 92"/>
+    <path d="M48 88 L38 108 M80 88 L90 108"/>
   </g>
+  <!-- body segments -->
+  <ellipse cx="64" cy="78" rx="30" ry="34" fill="url(#abdomen)" stroke="#1a1208" stroke-width="2.5"/>
+  <ellipse cx="64" cy="50" rx="22" ry="24" fill="url(#thorax)" stroke="#1a1208" stroke-width="2.5"/>
+  <circle cx="64" cy="28" r="16" fill="url(#head)" stroke="#1a1208" stroke-width="2.5"/>
+  <!-- segment lines -->
+  <path d="M44 62 Q64 58 84 62" fill="none" stroke="#3d2914" stroke-width="2" opacity="0.5"/>
+  <path d="M46 72 Q64 68 82 72" fill="none" stroke="#3d2914" stroke-width="2" opacity="0.4"/>
+  <!-- antennae -->
+  <path d="M52 18 Q38 6 28 10" fill="none" stroke="#2d1f0f" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M76 18 Q90 6 100 10" fill="none" stroke="#2d1f0f" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="28" cy="10" r="4" fill="#2d1f0f"/>
+  <circle cx="100" cy="10" r="4" fill="#2d1f0f"/>
+  <!-- eyes -->
+  <circle cx="56" cy="26" r="4.5" fill="#fff" stroke="#1a1208" stroke-width="1"/>
+  <circle cx="72" cy="26" r="4.5" fill="#fff" stroke="#1a1208" stroke-width="1"/>
+  <circle cx="57" cy="27" r="2" fill="#1a1208"/>
+  <circle cx="73" cy="27" r="2" fill="#1a1208"/>
+  <!-- highlight -->
+  <ellipse cx="58" cy="74" rx="8" ry="10" fill="#8b5e34" opacity="0.25"/>
 </svg>

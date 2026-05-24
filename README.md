@@ -116,6 +116,12 @@ Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 40_000_000`*
 
 Combined: **5M × 4 (episodes) × 2 (map/food)** ≈ **40M** steps.
 
+<p align="center">
+  <img src="docs/figures/mappo_32x32_demo.gif" width="640" alt="Trained MAPPO policy on 32×32: ants foraging, pheromone trails, and food delivery"/>
+</p>
+
+*Trained policy at ~10M steps (greedy actions). Red berries = food, yellow = pheromone trail, nest at the bottom.*
+
 ---
 
 ## Quick start

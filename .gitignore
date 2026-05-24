@@ -53,6 +53,9 @@ epymarl/src/results/
 epymarl/src/tb_logs/
 **/sacred/
 
+# --- Local checkpoints (copied from training server) ---
+models/
+
 # --- W&B / TensorBoard ---
 wandb/
 runs/

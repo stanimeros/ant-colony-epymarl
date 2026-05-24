@@ -3,4 +3,5 @@ numpy>=1.24
 wandb>=0.16
 matplotlib>=3.7
 pandas>=2.0
+imageio>=2.31
 -r epymarl/requirements.txt
