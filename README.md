@@ -12,8 +12,7 @@
   <a href="#the-idea">The idea</a> ·
   <a href="#observations-actions-rewards">Obs &amp; rewards</a> ·
   <a href="#what-weve-seen-so-far">Results</a> ·
-  <a href="#quick-start">Quick start</a> ·
-  <a href="docs/DEVELOPERS.md">Developer docs</a>
+  <a href="#quick-start">Quick start</a>
 </p>
 
 ---
@@ -130,19 +129,6 @@ Training runs in the **background** — safe to disconnect SSH. Watch progress:
 ```bash
 tail -f logs/train-*.log
 ```
-
----
-
-## Project layout (short)
-
-| Folder | What it is |
-|--------|------------|
-| `antcolony/` | The foraging world (ants, food, nest, pheromone) |
-| `epymarl-patches/` | Our tweaks to the training stack |
-| `docs/figures/` | README diagrams and learning-curve images |
-| `scripts/` | Tests and plot scripts |
-
-Module-level details and patch workflow → **[docs/DEVELOPERS.md](docs/DEVELOPERS.md)**.
 
 ---
 
