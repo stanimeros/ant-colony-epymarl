@@ -49,6 +49,23 @@ require_epymarl() {
   fi
 }
 
+_pgrep_training_pids() {
+  local root="${1:?}"
+  local uid="${2:?}"
+  local pattern pid
+  local patterns=(
+    "${root}/.venv/bin/python.*main\\.py"
+    "${root}/epymarl/src/main\\.py"
+    "bash -c .*(sleep|train\\.sh|install-and-train).*${root}"
+  )
+  for pattern in "${patterns[@]}"; do
+    while IFS= read -r pid; do
+      [[ -z "${pid}" ]] && continue
+      echo "${pid}"
+    done < <(pgrep -u "${uid}" -f "${pattern}" 2>/dev/null || true)
+  done | sort -u
+}
+
 cleanup_training_state() {
   local root="${1:-$(repo_root)}"
   local epymarl_dir="${root}/epymarl"
@@ -57,16 +74,20 @@ cleanup_training_state() {
   local pid
 
   echo "==> stopping stray training processes for this repo"
+  pids="$(_pgrep_training_pids "${root}" "${uid}" || true)"
+  if [[ -z "${pids}" ]]; then
+    echo "    (no matching training processes)"
+  fi
   while IFS= read -r pid; do
     [[ -z "${pid}" ]] && continue
     echo "    kill ${pid}"
     kill "${pid}" 2>/dev/null || true
-  done < <(pgrep -u "${uid}" -f "${epymarl_dir}/src/main.py" 2>/dev/null || true)
+  done <<< "${pids}"
   sleep 1
   while IFS= read -r pid; do
     [[ -z "${pid}" ]] && continue
     kill -9 "${pid}" 2>/dev/null || true
-  done < <(pgrep -u "${uid}" -f "${epymarl_dir}/src/main.py" 2>/dev/null || true)
+  done <<< "$(_pgrep_training_pids "${root}" "${uid}")"
 
   local run_dir
   for run_dir in \
