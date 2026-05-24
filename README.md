@@ -1,53 +1,73 @@
-# Ant Colony × EPyMARL
+<p align="center">
+  <img src="docs/icon/ant.svg" width="100" alt="Ant colony"/>
+</p>
 
-Cooperative multi-agent **ant foraging** gridworld for training swarm policies with [EPyMARL](https://github.com/uoe-agents/epymarl).
+<h1 align="center">Ant Colony Foraging</h1>
 
-| Path | In git? | Purpose |
-|------|---------|---------|
-| `antcolony/` | yes | Custom Gymnasium environment |
-| `epymarl-patches/` | yes | File replacements applied to upstream EPyMARL |
-| `epymarl/` | **no** | Created by `setup.sh` (clone + patches) |
+<p align="center">
+  Teach a swarm of ants to find food, find their way home, and leave trails for each other — using multi-agent reinforcement learning.
+</p>
 
-## Credits — EPyMARL
+<p align="center">
+  <a href="#the-idea">The idea</a> ·
+  <a href="#what-weve-seen-so-far">Results</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="docs/DEVELOPERS.md">Developer docs</a>
+</p>
 
-Training uses **[EPyMARL](https://github.com/uoe-agents/epymarl)** (Apache License 2.0), downloaded at setup time — not stored in this repository.
+---
 
-| Item | Details |
-|------|---------|
-| Upstream | https://github.com/uoe-agents/epymarl |
-| License | Apache 2.0 (see `epymarl/LICENSE` after running `setup.sh`) |
-| Our changes | `epymarl-patches/` → e.g. `src/config/envs/ant_colony.yaml` |
+## The idea
 
-Please cite EPyMARL / PyMARL when using their training code (see upstream README for BibTeX).
+A colony of ants lives on a small grid. Food appears in random places. The nest sits in the middle. Ants can move, pick up food, and **leave pheromone** when they carry food home — so others can follow successful paths.
 
-**Ant foraging** (`antcolony/`) is original to this repository.
+Everyone on the team gets the **same reward**: the colony wins when **all food is back at the nest**.
 
-## Results
+<p align="center">
+  <img src="docs/figures/how-it-works.svg" width="640" alt="Ants explore, leave pheromone trails, and cooperate to deliver food to the nest"/>
+</p>
 
-### 16×16 — MAPPO (Titan Xp, CUDA)
+Learning is done with **MAPPO** (many ants learning together) on top of [EPyMARL](https://github.com/uoe-agents/epymarl).
 
-Baseline cooperative foraging run on **University of Macedonia Titan** (`torch` cu121, `use_cuda: True`). Config at train time: **16×16** grid, **8 ants**, **12 food**, **200** steps/episode, global reward (`common_reward: True`).
+---
 
-| | Train | Test (greedy) |
-|---|------:|--------------:|
-| **Return** (`return_mean` / `test_return_mean`) | ~158 | ~155 |
-| **All food delivered** (`battle_won_mean` / `test_battle_won_mean`) | **~93%** | **~90%** |
-| **Deliveries per episode** (`total_deliveries_mean` / `test_total_deliveries_mean`) | **~11.9 / 12** | **~11.9 / 12** |
-| **Episode length** (`ep_length_mean` / `test_ep_length_mean`) | ~103 steps | ~109 steps |
+## What we've seen so far
 
-W&B run **[rich-armadillo-3](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging/runs/x11wd1h0)** (`x11wd1h0`) in project [`ant-colony-foraging`](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging). Metrics above are from the run summary while training was still in progress (`t_max` was the upstream MAPPO default 20M env steps; `save_model: False` — **no checkpoint** was written for replay/visualization).
+### First successful world: **16×16**
 
-To reproduce the **16×16** setup on a smaller GPU:
+Eight ants, twelve food pieces, a compact map — our first run where the swarm clearly **learned the job**.
 
-```bash
-TRAIN_WITH='env_args.grid_width=16 env_args.grid_height=16 env_args.n_ants=8 env_args.n_food=12 env_args.max_steps=200 env_args.time_limit=200 t_max=500000' ./train.sh
-```
+| What we measured | In plain terms |
+|------------------|----------------|
+| **Food home** | Almost every episode: **~12 of 12** pieces delivered |
+| **Full success** | **~90%** of episodes end with the nest stocked |
+| **Speed** | Episodes shrink from ~200 steps down to **~110** as ants get efficient |
+| **Team score** | Stable high reward once training settles |
 
-### 32×32 — current training default
+<p align="center">
+  <img src="docs/figures/mappo_16x16_learning_curves.png" width="720" alt="Training curves for the 16x16 ant foraging run"/>
+</p>
 
-`epymarl-patches/src/config/envs/ant_colony.yaml` now targets **32×32**, **32 ants**, **24 food**, **800** steps, **`t_max: 500000`**, with MAPPO batch sizes reduced in `epymarl-patches/src/config/algs/mappo.yaml` for **~12GB VRAM** (64×64 / 64 ants OOM’d on Titan Xp).
+*How learning looked over time (from [Weights & Biases](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging/runs/x11wd1h0)).*
 
-## Setup (local or server)
+**Takeaway:** the colony goes from random wandering to **organized foraging** — higher scores, more food delivered, shorter episodes.
+
+<details>
+<summary><strong>More detail &amp; live dashboard</strong></summary>
+
+- Run: [rich-armadillo-3](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging/runs/x11wd1h0)
+- Project: [ant-colony-foraging](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging)
+- Trained on Titan (GPU), MAPPO, cooperative reward
+
+</details>
+
+### Next scale: **32×32**
+
+The default config now uses a **larger map** (32×32, 32 ants) so we can see whether the same behaviour holds when the world grows. That needs more GPU memory than 64×64 on our 12GB cards.
+
+---
+
+## Quick start
 
 ```bash
 git clone https://github.com/stanimeros/ant-colony-epymarl.git
@@ -57,141 +77,30 @@ chmod +x setup.sh train.sh
 ./train.sh
 ```
 
-Configure Weights & Biases yourself before training (e.g. `source .venv/bin/activate && wandb login`, or `WANDB_API_KEY`).
+Log in to [Weights & Biases](https://wandb.ai) once if you want online charts (`wandb login` inside `.venv`).
 
-`setup.sh` will:
-
-1. **Stop** stray `main.py` training processes for this repo and **clear** `epymarl/*/results` (Sacred logs)
-2. `git fetch` + `git reset --hard origin/main` + `git clean -fd` (force match remote)
-3. Clone EPyMARL **only if** `epymarl/` is missing; **always** re-apply `epymarl-patches/`
-4. Create `.venv/` and install deps on first run; **skip pip** on later runs if `epymarl/` + `.venv/` exist
-5. **PyTorch** is not installed by `setup.sh` (avoids wrong CUDA wheels from PyPI). Install `torch` + `torchvision` once on GPU servers (see below).
-
-**PyTorch on Titan (driver 535 / CUDA 12.2):** install `cu121` wheels manually (use `curl -4` / `wget -4`), then `pip install` the local `.whl` files. Do not use default `pip install torch` from PyPI on the server.
-
-Server options:
+Training runs in the **background** — safe to disconnect SSH. Watch progress:
 
 ```bash
-GIT_BRANCH=main ./setup.sh              # default branch to sync
-SKIP_GIT_SYNC=1 ./setup.sh              # skip git reset (e.g. no remote)
-CLEAN_RUNS=0 ./setup.sh                 # do not kill training PIDs or clear results/
-FORCE_EPYMARL_CLONE=1 ./setup.sh        # delete and re-clone epymarl/
-FORCE_PIP_INSTALL=1 ./setup.sh          # reinstall requirements even if epymarl/ exists
-RECREATE_VENV=1 ./setup.sh              # rebuild venv (still runs pip unless epymarl/ existed)
-SKIP_PIP_UPGRADE=1 ./setup.sh           # skip pip -U pip wheel
-PIP_TIMEOUT=300 ./setup.sh              # longer PyPI timeout on slow networks (default 120)
-EPYMARL_REF=cbc38c0 ./setup.sh          # pin upstream EPyMARL commit (first clone only)
+tail -f logs/train-*.log
 ```
 
-On slow HPC links, `ReadTimeoutError` retries from pip are normal — let the **first** `./setup.sh` finish. Later `./setup.sh` runs only refresh patches (fast).
+---
 
-## Train
+## Project layout (short)
 
-```bash
-./train.sh
-```
+| Folder | What it is |
+|--------|------------|
+| `antcolony/` | The foraging world (ants, food, nest, pheromone) |
+| `epymarl-patches/` | Our tweaks to the training stack |
+| `docs/figures/` | README diagrams and learning-curve images |
+| `scripts/` | Tests and W&B plot helper |
 
-Runs in the **background** with `nohup` (safe to close SSH). Logs go to `logs/train-*.log`. Follow with `tail -f logs/train-*.log`.
+Full setup flags, observation layout, and patch workflow → **[docs/DEVELOPERS.md](docs/DEVELOPERS.md)**.
 
-Foreground (blocks terminal): `FOREGROUND=1 ./train.sh`
+---
 
-Defaults: **MAPPO**, `ant_colony` env (**32×32**, 32 ants — see [Results](#results)), `wandb_mode=online`. Overrides:
+## Credits
 
-```bash
-WANDB_MODE=offline ./train.sh
-SEED=42 ./train.sh
-TRAIN_WITH='t_max=100000 env_args.n_ants=16' ./train.sh
-./train.sh with env_args.grid_width=32
-```
-
-## Environment layout
-
-| Module | Role |
-|--------|------|
-| `antcolony/env.py` | Gymnasium API + `get_obs()` for EPyMARL `gymma` |
-| `antcolony/core/colony.py` | Grid, food, walls, nest, pheromone, step physics |
-| `antcolony/observations.py` | 3×3 local window + carrying + path-integration vector |
-| `antcolony/actions.py` | Discrete(5): stay, up, down, left, right |
-| `antcolony/rewards.py` | Global cooperative reward (+10 delivery, −0.01/step/ant) |
-| `antcolony/config.py` | Sizes, reward constants, evaporation rate |
-
-Gymnasium id: `antcolony:AntColony-v0`.
-
-### Observation vector (dim = 30)
-
-| Index | Content |
-|-------|---------|
-| 0–26 | 3×3 patch, row-major: per cell `(wall, food, pheromone)` |
-| 27 | `carrying_food` ∈ {0, 1} |
-| 28–29 | Path-integration nest direction `(home_dx, home_dy)` ∈ [−1, 1] |
-
-Pheromone is deposited automatically when `carrying_food == 1`; grid evaporates ×0.95 each step.
-
-**Static obstacles:** **10%** of cells are random walls each episode (`wall_fraction=0.10`), nest excluded.
-
-**Victory:** episode ends when every spawned food piece has been **delivered to the nest** (`battle_won: true`, +50 team bonus). Otherwise ends at `max_steps`.
-
-## Tests
-
-```bash
-source .venv/bin/activate
-export PYTHONPATH="${PWD}:${PWD}/epymarl/src"
-python scripts/smoke_test_env.py
-python scripts/test_ant_foraging.py
-```
-
-## Train with EPyMARL
-
-```bash
-source .venv/bin/activate
-export PYTHONPATH="${PWD}:${PWD}/epymarl/src"
-cd epymarl/src
-python main.py --config=qmix --env-config=ant_colony
-```
-
-MAPPO (per-agent rewards):
-
-```bash
-python main.py --config=mappo --env-config=ant_colony common_reward=False
-```
-
-### Weights & Biases
-
-W&B is enabled in `ant_colony.yaml` (`use_wandb: True`, project `ant-colony-foraging`). Log in or set credentials yourself before training.
-
-Train with online sync:
-
-```bash
-python main.py --config=qmix --env-config=ant_colony with wandb_mode=online
-```
-
-Optional overrides (Sacred):
-
-```bash
-python main.py --config=qmix --env-config=ant_colony \
-  with wandb_team=my-team wandb_project=my-project wandb_mode=online
-```
-
-If `wandb_team` is null, runs log to the entity from `wandb login`. Offline runs upload later with `wandb sync <run_dir>`.
-
-Check runs (on the server, after `source .venv/bin/activate`):
-
-```bash
-wandb status
-wandb whoami
-wandb runs -p ant-colony-foraging -n 5
-```
-
-Offline run dirs (sync to the web UI):
-
-```bash
-find epymarl/src/results -type d -name 'wandb' 2>/dev/null | head
-wandb sync epymarl/src/results/sacred/<run_id>/wandb
-```
-
-## Adding EPyMARL patches
-
-1. Run `./setup.sh` once.
-2. Edit a file under `epymarl/`, or copy from upstream into `epymarl-patches/` using the **same relative path**.
-3. Commit only under `epymarl-patches/`.
-4. Re-run `./setup.sh` to verify.
+- **Ant environment** — this repository  
+- **Training framework** — [EPyMARL](https://github.com/uoe-agents/epymarl) (Apache 2.0), installed by `setup.sh`
