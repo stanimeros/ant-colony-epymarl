@@ -62,7 +62,7 @@ Eight ants, twelve food pieces, a compact map — our first run where the swarm 
 
 ### Next scale: **32×32**
 
-Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 40_000_000`** env steps — scaled from 16×16, where learning showed up around **5M** steps and the old cap was **20M**:
+Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 40_000_000`** env steps, with checkpoints every **5M** steps — scaled from 16×16 (~**5M** steps to first clear learning):
 
 | Factor vs 16×16 | Ratio |
 |-----------------|------:|
@@ -70,7 +70,7 @@ Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 40_000_000`*
 | Grid area (32² vs 16²) | 4× |
 | Food pieces | 2× |
 
-So we use **5M × 4 (episodes) × 2 (harder map/food)** ≈ **40M** steps, not 500k (that run stopped before anything was learned). Checkpoints every **5M** steps.
+Combined: **5M × 4 (episodes) × 2 (map/food)** ≈ **40M** steps.
 
 ---
 
