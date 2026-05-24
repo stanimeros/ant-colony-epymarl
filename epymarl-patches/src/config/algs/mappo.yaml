@@ -32,5 +32,5 @@ epochs: 4
 eps_clip: 0.2
 name: "mappo"
 
-# env ant_colony.yaml sets logging/checkpoints; avoid upstream 20M default
-t_max: 500000
+# Match envs/ant_colony.yaml (scaled from 16×16 ~5M learn / 20M cap)
+t_max: 40000000

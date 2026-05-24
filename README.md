@@ -63,7 +63,15 @@ Eight ants, twelve food pieces, a compact map — our first run where the swarm 
 
 ### Next scale: **32×32**
 
-The default config now uses a **larger map** (32×32, 32 ants) so we can see whether the same behaviour holds when the world grows. That needs more GPU memory than 64×64 on our 12GB cards.
+Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 40_000_000`** env steps — scaled from 16×16, where learning showed up around **5M** steps and the old cap was **20M**:
+
+| Factor vs 16×16 | Ratio |
+|-----------------|------:|
+| Episode length (800 vs 200 steps) | 4× |
+| Grid area (32² vs 16²) | 4× |
+| Food pieces | 2× |
+
+So we use **5M × 4 (episodes) × 2 (harder map/food)** ≈ **40M** steps, not 500k (that run stopped before anything was learned). Checkpoints every **5M** steps.
 
 ---
 

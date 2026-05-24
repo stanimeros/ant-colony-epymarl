@@ -18,15 +18,19 @@ reward_scalarisation: "sum"
 
 test_greedy: True
 test_nepisode: 16
-test_interval: 100000
-log_interval: 100000
+test_interval: 500000
+log_interval: 50000
 runner_log_interval: 50000
 learner_log_interval: 50000
-t_max: 500000
 
-# Disk / W&B — big grid runs are slow; log and checkpoint infrequently
+# Training budget (env steps), scaled from 16×16 W&B run rich-armadillo-3:
+#   ~5M steps until strong foraging; upstream t_max was 20M.
+#   32×32 vs 16×16: episode length 800/200 (4×), area (32/16)² (4×), food 24/12 (2×).
+#   t_max ≈ 5_000_000 × 4 × 2 ≈ 40_000_000  (episode × sqrt(area×food); ants add hardness)
+t_max: 40000000
+
 save_model: True
-save_model_interval: 500000
+save_model_interval: 5000000
 save_replay: False
 use_tensorboard: False
 
