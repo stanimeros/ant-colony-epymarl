@@ -2,13 +2,13 @@ env: "gymma"
 
 env_args:
   key: "antcolony:AntColony-v0"
-  time_limit: 200
+  time_limit: 800
   pretrained_wrapper: null
-  n_ants: 8
-  grid_width: 16
-  grid_height: 16
-  max_steps: 200
-  n_food: 12
+  n_ants: 64
+  grid_width: 64
+  grid_height: 64
+  max_steps: 800
+  n_food: 48
   wall_fraction: 0.10
   obs_dim: 30
 
@@ -17,12 +17,18 @@ common_reward: True
 reward_scalarisation: "sum"
 
 test_greedy: True
-test_nepisode: 32
-test_interval: 10000
-log_interval: 10000
-runner_log_interval: 2000
-learner_log_interval: 2000
+test_nepisode: 16
+test_interval: 100000
+log_interval: 100000
+runner_log_interval: 50000
+learner_log_interval: 50000
 t_max: 500000
+
+# Disk / W&B — big grid runs are slow; log and checkpoint infrequently
+save_model: True
+save_model_interval: 500000
+save_replay: False
+use_tensorboard: False
 
 # Weights & Biases (`wandb login` once; optional: with wandb_team=... wandb_mode=online)
 use_wandb: True

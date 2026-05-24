@@ -21,7 +21,6 @@ SKIP_PIP_UPGRADE="${SKIP_PIP_UPGRADE:-0}"
 RECREATE_VENV="${RECREATE_VENV:-0}"
 CLEAN_RUNS="${CLEAN_RUNS:-1}"
 PIP_TIMEOUT="${PIP_TIMEOUT:-120}"
-TORCH_INDEX_URL="${TORCH_INDEX_URL:-https://download.pytorch.org/whl/cu121}"
 FILTERED_EPYMARL_REQ="${REPO_ROOT}/.epymarl-requirements.filtered"
 
 epymarl_present() {
@@ -134,9 +133,8 @@ pip_install() {
     "${PIP}" install "${pip_args[@]}" -U pip wheel
   fi
   write_filtered_epymarl_requirements
-  echo "==> installing Python dependencies (torch via CUDA 12.1 wheels)"
+  echo "==> installing Python dependencies (torch/torchvision excluded — install separately)"
   "${PIP}" install "${pip_args[@]}" -r "${FILTERED_EPYMARL_REQ}"
-  install_pytorch_cuda "${PIP}"
 }
 
 if [[ "${FORCE_PIP_INSTALL}" == "1" ]]; then
@@ -147,7 +145,7 @@ else
   pip_install
 fi
 
-ensure_pytorch_cuda "${PY}" "${PIP}"
+print_torch_status "${PY}"
 export_pythonpath "${REPO_ROOT}"
 echo "==> registering antcolony environment"
 "${PY}" -c "import antcolony"

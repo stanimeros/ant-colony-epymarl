@@ -40,7 +40,9 @@ Configure Weights & Biases yourself before training (e.g. `source .venv/bin/acti
 2. `git fetch` + `git reset --hard origin/main` + `git clean -fd` (force match remote)
 3. Clone EPyMARL **only if** `epymarl/` is missing; **always** re-apply `epymarl-patches/`
 4. Create `.venv/` and install deps on first run; **skip pip** on later runs if `epymarl/` + `.venv/` exist
-5. **Fix PyTorch CUDA** when needed (installs `cu121` wheels for driver CUDA 12.x — avoids CUDA 13 / driver mismatch)
+5. **PyTorch** is not installed by `setup.sh` (avoids wrong CUDA wheels from PyPI). Install `torch` + `torchvision` once on GPU servers (see below).
+
+**PyTorch on Titan (driver 535 / CUDA 12.2):** install `cu121` wheels manually (use `curl -4` / `wget -4`), then `pip install` the local `.whl` files. Do not use default `pip install torch` from PyPI on the server.
 
 Server options:
 
@@ -52,19 +54,9 @@ FORCE_EPYMARL_CLONE=1 ./setup.sh        # delete and re-clone epymarl/
 FORCE_PIP_INSTALL=1 ./setup.sh          # reinstall requirements even if epymarl/ exists
 RECREATE_VENV=1 ./setup.sh              # rebuild venv (still runs pip unless epymarl/ existed)
 SKIP_PIP_UPGRADE=1 ./setup.sh           # skip pip -U pip wheel
-SKIP_CUDA_FIX=1 ./setup.sh              # skip PyTorch CUDA repair check
 PIP_TIMEOUT=300 ./setup.sh              # longer PyPI timeout on slow networks (default 120)
 EPYMARL_REF=cbc38c0 ./setup.sh          # pin upstream EPyMARL commit (first clone only)
 ```
-
-**CUDA on Titan (driver 535 / CUDA 12.2):** default PyPI `torch` may pull CUDA 13 wheels and fail with “driver too old”. `./setup.sh` and `./train.sh` reinstall `cu121` PyTorch when `torch.cuda.is_available()` is false. If training logs `use_cuda was switched OFF`, run:
-
-```bash
-./setup.sh    # reinstalls cu121 torch if needed
-./train.sh
-```
-
-Check GPU: `.venv/bin/python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda)"`. CPU-only training: `ALLOW_CPU=1 ./train.sh`.
 
 On slow HPC links, `ReadTimeoutError` retries from pip are normal — let the **first** `./setup.sh` finish. Later `./setup.sh` runs only refresh patches (fast).
 
@@ -156,6 +148,21 @@ python main.py --config=qmix --env-config=ant_colony \
 ```
 
 If `wandb_team` is null, runs log to the entity from `wandb login`. Offline runs upload later with `wandb sync <run_dir>`.
+
+Check runs (on the server, after `source .venv/bin/activate`):
+
+```bash
+wandb status
+wandb whoami
+wandb runs -p ant-colony-foraging -n 5
+```
+
+Offline run dirs (sync to the web UI):
+
+```bash
+find epymarl/src/results -type d -name 'wandb' 2>/dev/null | head
+wandb sync epymarl/src/results/sacred/<run_id>/wandb
+```
 
 ## Adding EPyMARL patches
 

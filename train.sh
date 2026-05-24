@@ -25,9 +25,6 @@ activate_venv
 require_epymarl
 
 PY="${REPO_ROOT}/.venv/bin/python"
-PIP="${REPO_ROOT}/.venv/bin/pip"
-
-require_pytorch_cuda "${PY}" "${PIP}"
 
 echo "==> MAPPO training (env-config=${ENV_CONFIG}, wandb_mode=${WANDB_MODE})"
 cd "${REPO_ROOT}/epymarl/src"
