@@ -4,12 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from antcolony.config import (
-    REWARD_BATTLE_WON,
-    REWARD_NEST_DELIVERY,
-    REWARD_STEP_PENALTY,
-)
-
 if TYPE_CHECKING:
     from antcolony.core.colony import Colony
 
@@ -18,8 +12,8 @@ def compute_step_reward(
     colony: Colony, deliveries: int, *, battle_won: bool = False
 ) -> float:
     """Single team reward per environment step."""
-    reward = deliveries * REWARD_NEST_DELIVERY
-    reward += colony.n_ants * REWARD_STEP_PENALTY
+    reward = deliveries * colony.reward_nest_delivery
+    reward += colony.n_ants * colony.reward_step_penalty_per_ant
     if battle_won:
-        reward += REWARD_BATTLE_WON
+        reward += colony.reward_battle_won
     return reward

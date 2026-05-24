@@ -5,12 +5,7 @@ import antcolony  # noqa: F401
 import numpy as np
 
 from antcolony.actions import Action
-from antcolony.config import (
-    OBS_DIM,
-    REWARD_BATTLE_WON,
-    REWARD_NEST_DELIVERY,
-    REWARD_STEP_PENALTY,
-)
+from antcolony.config import OBS_DIM, scaled_rewards
 from antcolony.core.colony import Colony
 from antcolony.observations import init_home_vector, update_home_vector
 
@@ -40,7 +35,8 @@ def test_nest_delivery_reward():
     _, r, _, info = c.step([Action.STAND_STILL, Action.STAND_STILL])
     assert info["deliveries"] == 1
     assert c.ants[0].carrying_food == 0
-    expected = REWARD_NEST_DELIVERY + 2 * REWARD_STEP_PENALTY
+    deliv, step, _ = scaled_rewards(2, 4)
+    expected = deliv + 2 * step
     assert abs(r - expected) < 1e-5
 
 
@@ -75,12 +71,17 @@ def test_battle_won_terminates_episode():
             assert term
             assert info["battle_won"]
             assert info["total_deliveries"] == 3
-            expected = (
-                REWARD_NEST_DELIVERY
-                + 2 * REWARD_STEP_PENALTY
-                + REWARD_BATTLE_WON
-            )
+            deliv, step, won = scaled_rewards(2, 3)
+            expected = deliv + 2 * step + won
             assert abs(r - expected) < 1e-5
+
+
+def test_scaled_rewards_32x32():
+    deliv, step, won = scaled_rewards(32, 24)
+    assert deliv == 20.0
+    assert step == -0.0025
+    assert won == 100.0
+    assert 32 * step == -0.08  # same team step cost as 16×16 baseline
 
 
 def test_path_integration():
@@ -104,5 +105,6 @@ if __name__ == "__main__":
     test_nest_delivery_reward()
     test_pheromone_deposit_and_evaporation()
     test_battle_won_terminates_episode()
+    test_scaled_rewards_32x32()
     test_path_integration()
     print("All tests passed.")

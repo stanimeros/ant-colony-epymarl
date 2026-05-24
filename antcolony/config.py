@@ -10,10 +10,27 @@ OBS_DIM = LOCAL_WINDOW_SIZE * LOCAL_WINDOW_SIZE * LOCAL_CHANNELS + OBS_INTERNAL_
 
 N_ACTIONS = 5
 
-# Rewards (global cooperative).
+# Rewards (global cooperative) — baseline matches 16×16 default env.
+BASELINE_N_ANTS = 8
+BASELINE_N_FOOD = 12
 REWARD_NEST_DELIVERY = 10.0
-REWARD_STEP_PENALTY = -0.01
+REWARD_STEP_PENALTY = -0.01  # per ant; team step cost = this × n_ants
 REWARD_BATTLE_WON = 50.0
+
+
+def scaled_rewards(n_ants: int, n_food: int) -> tuple[float, float, float]:
+    """Scale rewards with map size (same idea as t_max / food / ants).
+
+    - Delivery & battle bonus ∝ food count (12 → 24 is 2×).
+    - Per-ant step penalty ∝ 1/n_ants so team step cost stays ~8×0.01 = 0.08.
+    """
+    food_scale = n_food / BASELINE_N_FOOD
+    ant_scale = BASELINE_N_ANTS / n_ants
+    return (
+        REWARD_NEST_DELIVERY * food_scale,
+        REWARD_STEP_PENALTY * ant_scale,
+        REWARD_BATTLE_WON * food_scale,
+    )
 
 # Stigmergy.
 PHEROMONE_DEPOSIT = 1.0

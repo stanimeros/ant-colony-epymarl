@@ -5,7 +5,7 @@ import antcolony  # noqa: F401
 import gymnasium as gym
 
 from antcolony.actions import Action
-from antcolony.config import OBS_DIM, REWARD_STEP_PENALTY
+from antcolony.config import OBS_DIM, scaled_rewards
 
 
 def main() -> None:
@@ -19,7 +19,8 @@ def main() -> None:
     y, x = colony.ants[0].position
     obs, reward, term, trunc, info = env.step([Action.MOVE_UP] * 4)
     assert obs[0].shape == (OBS_DIM,)
-    assert abs(reward - 4 * REWARD_STEP_PENALTY) < 1e-5
+    _, step_penalty, _ = scaled_rewards(4, 12)
+    assert abs(reward - 4 * step_penalty) < 1e-5
     assert colony.food_pheromone_grid.max() <= 1.0
 
     print("obs_dim:", OBS_DIM)

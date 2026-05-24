@@ -23,11 +23,10 @@ log_interval: 50000
 runner_log_interval: 50000
 learner_log_interval: 50000
 
-# Training budget (env steps), scaled from 16×16 W&B run rich-armadillo-3:
-#   ~5M steps until strong foraging; upstream t_max was 20M.
-#   32×32 vs 16×16: episode length 800/200 (4×), area (32/16)² (4×), food 24/12 (2×).
-#   t_max ≈ 5_000_000 × 4 × 2 ≈ 40_000_000  (episode × sqrt(area×food); ants add hardness)
-t_max: 40000000
+# Training budget (env steps), from 16×16 W&B run rich-armadillo-3:
+#   ~80–90% success around 4–5M t_env; t_max on that run was 20M.
+#   32×32: same rule → 5M × 4 (map/episode scale) ≈ 20M (not 40M).
+t_max: 20000000
 
 save_model: True
 save_model_interval: 5000000

@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from antcolony.actions import ACTION_DELTAS, Action
-from antcolony.config import OBS_DIM, PHEROMONE_DEPOSIT
+from antcolony.config import OBS_DIM, PHEROMONE_DEPOSIT, scaled_rewards
 from antcolony.core.ant import Ant
 from antcolony.observations import (
     build_observations,
@@ -41,6 +41,11 @@ class Colony:
         self.n_actions = n_actions
         self.obs_dim = OBS_DIM
         self.pheromone_evaporation = pheromone_evaporation
+        (
+            self.reward_nest_delivery,
+            self.reward_step_penalty_per_ant,
+            self.reward_battle_won,
+        ) = scaled_rewards(n_ants, n_food)
 
         self.rng = np.random.default_rng(seed)
         self.step_count = 0

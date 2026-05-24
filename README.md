@@ -65,13 +65,13 @@ Walls block movement. Stepping on food **picks it up**; stepping on the nest whi
 
 All ants get the **same** reward each step (cooperative MARL):
 
-| Event | Reward |
-|-------|--------:|
-| Food delivered to the nest | **+10** per piece |
-| Time (every step) | **−0.01** × number of ants |
-| All food delivered (episode success) | **+50** bonus |
+| Event | 16×16 (baseline) | 32×32 (scaled) |
+|-------|------------------:|-----------------:|
+| Food delivered to the nest | **+10** per piece | **+20** (× food ratio) |
+| Time (every step) | **−0.08** team total | **−0.08** team total |
+| All food delivered (episode success) | **+50** bonus | **+100** (× food ratio) |
 
-The step penalty encourages shorter, more efficient episodes. The big bonus appears when every piece of food is home.
+Rewards **scale with `n_food`** (delivery + win bonus). The per-ant step rate is adjusted so **32 ants** do not pay 4× the step tax each tick — same idea as scaling `t_max` with map size. Values are computed in `antcolony.config.scaled_rewards`.
 
 ---
 
@@ -106,15 +106,9 @@ Eight ants, twelve food pieces, a compact map — our first run where the swarm 
 
 ### Next scale: **32×32**
 
-Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 40_000_000`** env steps, with checkpoints every **5M** steps — scaled from 16×16 (~**5M** steps to first clear learning):
+Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 20_000_000`** env steps, with checkpoints every **5M** steps.
 
-| Factor vs 16×16 | Ratio |
-|-----------------|------:|
-| Episode length (800 vs 200 steps) | 4× |
-| Grid area (32² vs 16²) | 4× |
-| Food pieces | 2× |
-
-Combined: **5M × 4 (episodes) × 2 (map/food)** ≈ **40M** steps.
+From the 16×16 W&B run (**rich-armadillo-3**), strong foraging showed up around **4–5M** `t_env` (~80–90% full success); that run used **`t_max: 20M`**. For 32×32 we use the same **×4** rule: **~5M × 4 ≈ 20M** (episode length 800 vs 200 is the main scale factor). Rewards scale with food/ant count too (see above).
 
 <p align="center">
   <img src="docs/figures/mappo_32x32_demo.gif" width="640" alt="Trained MAPPO policy on 32×32: ants foraging, pheromone trails, and food delivery"/>
