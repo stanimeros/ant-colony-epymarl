@@ -71,7 +71,7 @@ All ants get the **same** reward each step (cooperative MARL):
 | Time (every step) | **−0.08** team total | **−0.08** team total |
 | All food delivered (episode success) | **+50** bonus | **+100** (× food ratio) |
 
-Rewards **scale with `n_food`** (delivery + win bonus). The per-ant step rate is adjusted so **32 ants** do not pay 4× the step tax each tick — same idea as scaling `t_max` with map size. Values are computed in `antcolony.config.scaled_rewards`.
+Rewards **scale with `n_food`** (delivery + win bonus). The per-ant step rate is adjusted so **32 ants** do not pay 4× the step tax each tick — same idea as scaling `t_max` with map size. Values are computed in `antcolony.config.scaled_rewards`. Full tables (16×16, old 32×32, scaled 32×32) and W&B milestones → **[docs/REWARDS.md](docs/REWARDS.md)**.
 
 ---
 
