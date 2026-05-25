@@ -114,7 +114,7 @@ From the 16×16 W&B run (**rich-armadillo-3**), strong foraging showed up around
   <img src="docs/figures/mappo_32x32_demo.gif" width="640" alt="Trained MAPPO policy on 32×32: ants foraging, pheromone trails, and food delivery"/>
 </p>
 
-*Trained policy at ~10M steps (greedy actions). Red berries = food, yellow = pheromone trail, nest at the bottom.*
+*Trained policy at ~20M steps (~70% train success; greedy eval, seed 13). Red berries = food, yellow = pheromone trail, nest at the bottom.*
 
 ---
 
