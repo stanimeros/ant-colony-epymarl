@@ -24,9 +24,9 @@ runner_log_interval: 50000
 learner_log_interval: 50000
 
 # Training budget (env steps), from 16×16 W&B run rich-armadillo-3:
-#   ~80–90% success around 4–5M t_env; t_max on that run was 20M.
-#   32×32: same rule → 5M × 4 (map/episode scale) ≈ 20M (not 40M).
-t_max: 20000000
+#   ~80–90% success around 4–5M t_env; 32×32 baseline ≈ 5M × 4 = 20M.
+#   t_max 40M = 2× that headroom (old run was still climbing at 20M on unscaled rewards).
+t_max: 40000000
 
 save_model: True
 save_model_interval: 5000000

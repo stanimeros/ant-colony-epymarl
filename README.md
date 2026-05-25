@@ -106,9 +106,9 @@ Eight ants, twelve food pieces, a compact map — our first run where the swarm 
 
 ### Next scale: **32×32**
 
-Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 20_000_000`** env steps, with checkpoints every **5M** steps.
+Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 40_000_000`** env steps, with checkpoints every **5M** steps.
 
-From the 16×16 W&B run (**rich-armadillo-3**), strong foraging showed up around **4–5M** `t_env` (~80–90% full success); that run used **`t_max: 20M`**. For 32×32 we use the same **×4** rule: **~5M × 4 ≈ 20M** (episode length 800 vs 200 is the main scale factor). Rewards scale with food/ant count too (see above).
+From the 16×16 W&B run (**rich-armadillo-3**), strong foraging showed up around **4–5M** `t_env`; for 32×32 the **minimum** scale is **~5M × 4 ≈ 20M**. We keep **`t_max: 40M`** (2× headroom) because the previous 32×32 run was still improving at 20M on unscaled rewards. Rewards also scale with food/ant count (see above).
 
 <p align="center">
   <img src="docs/figures/mappo_32x32_demo.gif" width="640" alt="Trained MAPPO policy on 32×32: ants foraging, pheromone trails, and food delivery"/>

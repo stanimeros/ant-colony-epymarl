@@ -32,5 +32,5 @@ epochs: 4
 eps_clip: 0.2
 name: "mappo"
 
-# Match envs/ant_colony.yaml (4 × ~5M t_env when 16×16 learned)
-t_max: 20000000
+# Match envs/ant_colony.yaml (20M baseline, 40M cap)
+t_max: 40000000
