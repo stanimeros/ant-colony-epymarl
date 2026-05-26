@@ -13,6 +13,9 @@ dist/
 pip-log.txt
 pip-delete-this-directory.txt
 
+# --- Local EPyMARL inspection clone ---
+.epymarl-inspect/
+
 # --- Virtual environments ---
 .venv/
 venv/

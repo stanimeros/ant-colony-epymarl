@@ -13,7 +13,7 @@ batch_size: 8
 
 target_update_interval_or_tau: 0.01
 
-lr: 0.0003
+lr: 0.0001  # was 0.0003 — smaller updates after scaled-reward run collapsed post-peak
 hidden_dim: 128
 
 obs_agent_id: True

@@ -29,7 +29,9 @@ learner_log_interval: 50000
 t_max: 40000000
 
 save_model: True
-save_model_interval: 5000000
+save_model_interval: 1000000  # every 1M t_env (was 5M — missed 77% peak between 20M and 25M)
+save_model_on_best_test: True
+save_model_best_metric: "test_battle_won_mean"
 save_replay: False
 use_tensorboard: False
 

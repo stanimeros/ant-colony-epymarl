@@ -105,8 +105,9 @@ Scaling rules (from baseline 8 ants / 12 food):
 | Training | Value |
 |----------|------:|
 | `t_max` | 40 000 000 |
-| `save_model_interval` | 5 000 000 |
-| Checkpoints on disk | `epymarl/src/results/models/.../<timestep>/agent.th` |
+| `save_model_interval` | 1 000 000 |
+| Best test checkpoint | `.../models/<run>/best/agent.th` (+ `best.json` with `t_env`, metric) |
+| Interval checkpoints | `.../models/<run>/<timestep>/agent.th` |
 
 **W&B:** start a **new** run after deploy; tag it e.g. `scaled-rewards` so it is not confused with `zlsz6f4l`.
 
