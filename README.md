@@ -71,22 +71,33 @@ All ants get the **same** reward each step (cooperative MARL):
 | Time (every step) | **−0.08** team total | **−0.08** team total |
 | All food delivered (episode success) | **+50** bonus | **+100** (× food ratio) |
 
-Rewards **scale with `n_food`** (delivery + win bonus). The per-ant step rate is adjusted so **32 ants** do not pay 4× the step tax each tick — same idea as scaling `t_max` with map size. Values are computed in `antcolony.config.scaled_rewards`. Full tables (16×16, old 32×32, scaled 32×32) and W&B milestones → **[docs/REWARDS.md](docs/REWARDS.md)**.
+Rewards **scale with `n_food`** (delivery + win bonus). The per-ant step rate is adjusted so **32 ants** do not pay 4× the step tax each tick — same idea as scaling `t_max` with map size. Values are computed in `antcolony.config.scaled_rewards`. Baselines, all W&B runs, and reward tables → **[docs/REWARDS.md](docs/REWARDS.md)**.
 
 ---
 
 ## What we've seen so far
 
-### First successful world: **16×16**
+Tracked on [Weights & Biases](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging). **Baselines to beat** (greedy test eval) are in **[docs/REWARDS.md](docs/REWARDS.md)**.
+
+**Baseline** = best test success during training (`models/…/best/`), not the last W&B log (runs were interrupted before a planned stop).
+
+| Map | Best run | Peak test success | @ `t_env` |
+|-----|----------|------------------:|----------:|
+| **16×16** | [rich-armadillo-3](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging/runs/x11wd1h0) | **~90%** | ~17.2M |
+| **32×32** | [playful-cosmos-10](https://wandb.ai/aid26006-university-of-macedonia/ant-colony-foraging/runs/pnle4do2) | **87.5%** | **21.2M** |
+
+**Full success** = all spawned food **delivered to the nest** (`battle_won`), not just an empty map — food can still be on ants when time runs out.
+
+### Best **16×16** — rich-armadillo-3
 
 Eight ants, twelve food pieces, a compact map — our first run where the swarm clearly **learned the job**.
 
 | What we measured | In plain terms |
 |------------------|----------------|
 | **Food home** | Almost every episode: **~12 of 12** pieces delivered |
-| **Full success** | **~90%** of episodes end with the nest stocked |
-| **Speed** | Episodes shrink from ~200 steps down to **~110** as ants get efficient |
-| **Team score** | Stable high reward once training settles |
+| **Full success (test)** | **90%** of greedy-eval episodes end with the nest stocked |
+| **Speed** | Episodes shrink from ~200 steps down to **~110** |
+| **Team score** | Test return **~155** (unscaled rewards) |
 
 <p align="center">
   <img src="docs/figures/mappo_16x16_learning_curves.png" width="720" alt="Training curves for the 16x16 ant foraging run"/>
@@ -100,21 +111,36 @@ Eight ants, twelve food pieces, a compact map — our first run where the swarm 
 <summary><strong>Run setup (16×16)</strong></summary>
 
 - Grid **16×16**, **8** ants, **12** food, **200** steps per episode  
-- **MAPPO**, cooperative team reward, trained on GPU  
+- **MAPPO**, cooperative team reward, **`t_max` ~20M**, trained on GPU  
+- W&B: **rich-armadillo-3** (`x11wd1h0`), peak ~17.2M `t_env`
 
 </details>
 
-### Next scale: **32×32**
+### Best **32×32** — playful-cosmos-10 (scaled rewards)
 
-Larger map (32×32, 32 ants, 24 food). Training budget is **`t_max: 40_000_000`** env steps, with checkpoints every **1M** steps plus a **`best/`** snapshot whenever **`test_battle_won_mean`** improves.
+Larger map (32×32, 32 ants, 24 food). Training budget **`t_max: 40_000_000`** env steps; checkpoints every **1M** steps plus **`best/`** when **`test_battle_won_mean`** improves.
 
-From the 16×16 W&B run (**rich-armadillo-3**), strong foraging showed up around **4–5M** `t_env`; for 32×32 the **minimum** scale is **~5M × 4 ≈ 20M**. We keep **`t_max: 40M`** (2× headroom) because the previous 32×32 run was still improving at 20M on unscaled rewards. Rewards also scale with food/ant count (see above).
+| What we measured | In plain terms |
+|------------------|----------------|
+| **Full success (test, peak)** | **87.5%** @ **21.2M** `t_env` (`best/` checkpoint) |
+| **Demo episode** | Greedy eval, seed 180 — full win in **338** steps |
+
+Strong foraging on 16×16 showed up around **4–5M** `t_env`; 32×32 best test success peaked around **21M**. An earlier 32×32 run without scaled rewards (**zesty-firefly-8**) plateaued around **~70%** train / **31%** test.
 
 <p align="center">
   <img src="docs/figures/mappo_32x32_demo.gif" width="640" alt="Trained MAPPO policy on 32×32: ants foraging, pheromone trails, and food delivery"/>
 </p>
 
-*Trained policy at ~20M steps (~70% train success; greedy eval, seed 13). Red berries = food, yellow = pheromone trail, nest at the bottom.*
+*Demo: **`best/`** checkpoint @ 21.2M (**87.5%** peak test success). Greedy eval, seed 180, full win in 338 steps. Red berries = food, yellow = pheromone trail, nest at the bottom.*
+
+<details>
+<summary><strong>Run setup (32×32)</strong></summary>
+
+- Grid **32×32**, **32** ants, **24** food, **800** steps per episode  
+- Scaled rewards (+20 delivery, −0.08 team step, +100 win) — see [docs/REWARDS.md](docs/REWARDS.md)  
+- W&B: **playful-cosmos-10** (`pnle4do2`), peak @ **21.2M** `t_env` (run interrupted later; no planned stop)
+
+</details>
 
 ---
 
@@ -133,6 +159,8 @@ Training runs in the **background** — safe to disconnect SSH. Watch progress:
 ```bash
 tail -f logs/train-*.log
 ```
+
+To **stop** training without deleting checkpoints or W&B history, kill the `main.py` processes only — do **not** run `./setup.sh` (it clears `epymarl/results/` by default). See [docs/REWARDS.md](docs/REWARDS.md#starting-a-new-experiment).
 
 ---
 

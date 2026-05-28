@@ -26,12 +26,13 @@ if _EPYMARL_SRC.is_dir() and str(_EPYMARL_SRC) not in sys.path:
 from modules.agents.rnn_agent import RNNAgent  # noqa: E402
 from render_icons import compose_frame  # noqa: E402
 
+# Best 32×32 (playful-cosmos-10): test_battle_won_mean 0.875 @ t_env 21170797
 _MODEL_DIR = (
     _REPO
     / "models"
-    / "mappo_seed238606856_antcolony:AntColony-v0_2026-05-24 12:10:06.952765"
+    / "mappo_seed448693470_antcolony:AntColony-v0_2026-05-26 17:24:39.960925"
 )
-DEFAULT_CHECKPOINT = _MODEL_DIR / "20016596" / "agent.th"
+DEFAULT_CHECKPOINT = _MODEL_DIR / "best" / "agent.th"
 
 ENV_KWARGS = dict(
     n_ants=32,
